@@ -1,32 +1,82 @@
 <template>
-  <div class="p-5" :style="{ background: colors.orange[400] }">
-    <el-button @click="openModal('TestModal')">Open Modal</el-button>
-    {{ testVar }}
-    {{ books }}
+  <div class="p-5">
+    <div class="max-w-[600px] p-5 flex flex-col gap-2 border border-gray-300 rounded-lg">
+      <p class="text-xl font-bold text-gray-900">Senior Big Data Engineer (GCP)</p>
+
+      <p class="text-sm text-gray-700">
+        location: Poland; Bulgaria * Be a part of the team of data-focused
+        engineers dedicated to continuous learning, improvement.
+      </p>
+
+      <div class="flex flex-col gap-1">
+        <AppSeparatedList
+          :items="singleSeparatedItem"
+          class="text-sm text-gray-700"
+        />
+
+        <AppSeparatedList
+          :items="twoSeparatedItems"
+          class="text-sm text-gray-700"
+        />
+
+        <AppSeparatedList
+          :items="jobSeparatedList"
+          class="text-sm text-orange-900"
+        />
+
+        <AppSeparatedList
+          :items="jobSeparatedList"
+          separator="|"
+          class="text-sm text-green-900"
+        />
+
+        <AppSeparatedList
+          :items="jobSeparatedList"
+          class="text-sm text-gray-700"
+        >
+          <template #separator>
+            <span class="text-bold text-orange-500">/</span>
+          </template>
+        </AppSeparatedList>
+      </div>
+    </div>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { colors } from '@colors'
-
-const generalStore = useGeneralStore()
-const { testVar } = storeToRefs(generalStore)
-
-const { openModal } = useModals()
-
-/* THIS IS FOR EXAMPLE PURPOSES. REMOVE ON REAL PROJECT */
-const books = ref<TBooks>([])
-async function init () {
-  books.value = (await useApiClient.get('/api/v1/Books')).slice(0, 3)
+const jobData = {
+  count: 12,
+  location: ['Warszawa', 'Poland'],
+  salary: '123123',
+  timestamp: '2024-07-07T07:07:07.123Z'
 }
 
-// async function createBook () {
-//   await useApiClient.post('/api/v1/Books', { description: '' })
-// }
+const singleSeparatedItem = [`Count: ${jobData.count}`]
 
-// async function updateBook () {
-//   await useApiClient.put('/api/v1/Books/{id}', { pageCount: 1, description: '123' }, { dynamicKeys: { id: 123 } })
-// }
+const twoSeparatedItems = [jobData.location.join(', '), formatSalary(jobData.salary)]
 
-onMounted(init)
+const jobSeparatedList = [
+  `Count: ${jobData.count}`,
+  jobData.location.join(', '),
+  formatSalary(jobData.salary),
+  formatRelativeTime(jobData.timestamp)
+]
+
+function formatSalary (value: string) {
+  const num = parseFloat(value)
+  return `$${num}`
+}
+
+function formatRelativeTime (timestamp: string): string {
+  const date = new Date(timestamp)
+  const now = new Date()
+
+  const diffMs = now.getTime() - date.getTime()
+  const diffHours = Math.floor(diffMs / (1000 * 60 * 60))
+  const diffDays = Math.floor(diffHours / 24)
+
+  if (diffDays > 0) return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`
+  if (diffHours > 0) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`
+  return 'Just now'
+}
 </script>
